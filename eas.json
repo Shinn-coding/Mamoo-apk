@@ -5,7 +5,7 @@
   },
   "build": {
     "preview": {
-      "distribution": "store",
+      "distribution": "internal",
       "android": {
         "buildType": "apk"
       }
