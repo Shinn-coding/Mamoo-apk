@@ -26,11 +26,6 @@ export default function RootLayout() {
     }
   }, [ready, initError]);
 
-  // Splash animasi Mamoo: tampil sampai animasinya selesai (atau diketuk).
-  if (!splashDone && !initError) {
-    return <BubbleSplash onDone={() => setSplashDone(true)} />;
-  }
-
   if (initError) {
     return (
       <View style={styles.errorContainer}>
@@ -43,23 +38,36 @@ export default function RootLayout() {
     );
   }
 
-  if (ready && appLockEnabled && !unlocked) {
-    return <AppLock onUnlock={() => setUnlocked(true)} />;
-  }
-
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen
-        name="transaction/new"
-        options={{ presentation: 'modal', title: 'Tambah Transaksi' }}
-      />
-      <Stack.Screen name="pin-setup" options={{ presentation: 'modal', title: 'Kunci Aplikasi' }} />
-    </Stack>
+    <View style={styles.root}>
+      {ready ? (
+        appLockEnabled && !unlocked ? (
+          <AppLock onUnlock={() => setUnlocked(true)} />
+        ) : (
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen
+              name="transaction/new"
+              options={{ presentation: 'modal', title: 'Tambah Transaksi' }}
+            />
+            <Stack.Screen name="pin-setup" options={{ presentation: 'modal', title: 'Kunci Aplikasi' }} />
+          </Stack>
+        )
+      ) : null}
+
+      {/* Splash animasi adalah overlay, bukan layar pengganti. Layar utama
+          sudah ter-mount di belakangnya supaya fade tidak memperlihatkan
+          root window yang hitam. */}
+      {!splashDone ? <BubbleSplash onDone={() => setSplashDone(true)} /> : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   errorContainer: {
     flex: 1,
     backgroundColor: colors.background,
