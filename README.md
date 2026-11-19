@@ -1,4 +1,4 @@
-# Mamoo 💰
+# Mamoo
 
 **Catat pengeluaran, atur anggaran, capai target tabungan — semuanya offline.**
 
@@ -22,7 +22,7 @@ Mamoo adalah aplikasi pencatat keuangan pribadi yang menyimpan seluruh data **di
 - **Backup & Ekspor** — backup semua data keuangan ke file JSON (bisa dipulihkan kapan saja), ekspor transaksi ke CSV untuk Excel/Google Sheets.
 - **Profil lokal** — atur nama panggilan + foto sebagai penanda HP ini. Tanpa akun/login; foto maksimal 10 MB dan otomatis diperkecil jadi ±150 KB.
 - **Kunci aplikasi** — PIN 4–6 digit (hash disimpan aman di `expo-secure-store`, bukan database) + opsional biometrik. Lupa PIN → reset dengan konfirmasi dua langkah.
-- **Intro animasi** — splash digital: glass tile muncul, koin terwujud lalu jatuh, cling tepat saat koin diam, wordmark muncul huruf-per-huruf dengan shimmer.
+- **Intro animasi** — splash digital: glass tile muncul, monogram m digambar sebagai satu garis, batang kanan naik menjadi panah, sparkle emas tipis di ujung panah, lalu wordmark muncul huruf-per-huruf dengan shimmer.
 
 ## Cara Pakai
 
