@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Constants from 'expo-constants';
+
+import GREEN_LOGO from '@/assets/images/mamoo-logo-green.png';
+import WHITE_LOGO from '@/assets/images/mamoo-wordmark.png';
 
 import { exportBackup, restoreBackup, resetAllData } from '@/db/repositories/backup.repository';
 import { listTransactionsForExport } from '@/db/repositories/transactions.repository';
@@ -41,7 +44,7 @@ const NAV_ROWS: NavRow[] = [
 export default function SettingsScreen() {
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { isDark, colors } = useTheme();
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
   const appLockEnabled = useAppStore((state) => state.settings.appLockEnabled);
   const biometricEnabled = useAppStore((state) => state.settings.biometricEnabled);
@@ -392,6 +395,13 @@ export default function SettingsScreen() {
 
         <Text style={styles.section}>Tentang</Text>
         <View style={styles.card}>
+          <View style={styles.brandHeader}>
+            <Image
+              source={isDark ? WHITE_LOGO : GREEN_LOGO}
+              style={styles.brandLogo}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={styles.hint}>
             Mamoo menyimpan semua data di HP ini (SQLite lokal) — tanpa server, tanpa akun, tanpa
             internet. Backup file JSON secara rutin supaya data aman kalau ganti HP.
@@ -485,6 +495,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingTop: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
+  },
+  brandHeader: {
+    alignItems: 'center',
+    paddingVertical: spacing.xs,
+  },
+  brandLogo: {
+    width: 140,
+    height: 38,
   },
   aboutLabel: { fontSize: 13, color: colors.textMuted },
   aboutValue: { fontSize: 13, fontWeight: '700', color: colors.text },

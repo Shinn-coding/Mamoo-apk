@@ -15,7 +15,7 @@ import {
 import { Image } from 'expo-image';
 
 import WORDMARK from '@/assets/images/mamoo-wordmark.png';
-const WORDMARK_RATIO = 1200 / 257;
+const WORDMARK_RATIO = 1549 / 307;
 const INTRO_BG = '#179C51';
 const HOLD_MS = 850;
 
