@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AmountInput } from '@/components/ui/amount-input';
 import { AppIcon } from '@/components/ui/app-icon';
@@ -19,10 +19,13 @@ import {
 import { useDataStore } from '@/store/use-data-store';
 import { formatRupiah, parseAmountInput, percent } from '@/utils/format';
 import { todayLocal, type LocalDate } from '@/utils/date';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 import type { IconName } from '@/constants/icons';
 
 export default function SavingsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const bump = useDataStore((state) => state.bump);
   const version = useDataStore((state) => state.version);
@@ -233,7 +236,7 @@ export default function SavingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   list: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl * 4 },
   summary: {
@@ -243,7 +246,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   summaryLabel: { color: colors.primaryLight, fontSize: 12, fontWeight: '700' },
-  summaryValue: { color: colors.surface, fontSize: 26, fontWeight: '800' },
+  summaryValue: { color: colors.onPrimary, fontSize: 26, fontWeight: '800' },
   summaryHint: { color: colors.primaryLight, fontSize: 11 },
   card: {
     flexDirection: 'row',

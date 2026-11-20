@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AppIcon } from '@/components/ui/app-icon';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -22,11 +22,14 @@ import {
   type CycleRange,
 } from '@/utils/date';
 import { formatRupiah, percent } from '@/utils/format';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 
 const BAR_MAX_HEIGHT = 110;
 
 export default function ReportsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
 
   const [cycleStart, setCycleStart] = useState(() => getCycleRange(todayLocal(), cycleStartDay).start);
@@ -128,7 +131,7 @@ export default function ReportsScreen() {
                 return (
                   <View key={`${item.category_id ?? 'none'}-${index}`} style={styles.legendRow}>
                     <View style={[styles.legendDot, { backgroundColor: item.color }]}>
-                      <AppIcon name={item.icon} color={colors.surface} size={12} />
+                      <AppIcon name={item.icon} color={colors.onPrimary} size={12} />
                     </View>
                     <Text style={styles.legendName} numberOfLines={1}>
                       {item.name}
@@ -216,6 +219,8 @@ function CycleNav({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.monthNav}>
       <Pressable onPress={onPrev} hitSlop={8}>
@@ -234,7 +239,7 @@ function CycleNav({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   monthNav: {
     flexDirection: 'row',

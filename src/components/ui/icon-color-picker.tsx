@@ -1,9 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AppIcon } from '@/components/ui/app-icon';
 import { COLOR_PALETTE, ICON_OPTIONS, type IconName } from '@/constants/icons';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 
 /** Picker ikon (grid) + warna (palet tetap) — dipakai editor kategori/dompet/target. */
 export function IconColorPicker({
@@ -17,6 +18,8 @@ export function IconColorPicker({
   onIcon: (icon: IconName) => void;
   onColor: (color: string) => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Ikon</Text>
@@ -44,7 +47,7 @@ export function IconColorPicker({
             onPress={() => onColor(option)}
           >
             {color === option ? (
-              <Ionicons name="checkmark" size={18} color={colors.surface} />
+              <Ionicons name="checkmark" size={18} color={colors.onPrimary} />
             ) : null}
           </Pressable>
         ))}
@@ -53,7 +56,7 @@ export function IconColorPicker({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { gap: spacing.md },
   label: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
   iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

@@ -4,7 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppIcon } from '@/components/ui/app-icon';
 import { listCategories } from '@/db/repositories/categories.repository';
 import { useDataVersion } from '@/store/use-data-store';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 import type { Category, CategoryType } from '@/db/types';
 
 /** Grid kategori aktif untuk dipilih di form transaksi. */
@@ -18,6 +19,8 @@ export function CategoryGrid({
   onSelect: (category: Category) => void;
 }) {
   const version = useDataVersion();
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export function CategoryGrid({
 
 const CIRCLE = 52;
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

@@ -3,7 +3,8 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 
 import { parseLocalDate, toLocalDate, todayLocal, type LocalDate } from '@/utils/date';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 
 function label(value: LocalDate): string {
   if (value === todayLocal()) return 'Hari ini';
@@ -23,6 +24,7 @@ export function DateField({
   onChange: (date: LocalDate) => void;
 }) {
   const [showIos, setShowIos] = useState(false);
+  const styles = useThemedStyles(createStyles);
 
   const openAndroid = () => {
     DateTimePickerAndroid.open({
@@ -60,7 +62,7 @@ export function DateField({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',

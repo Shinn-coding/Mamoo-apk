@@ -79,6 +79,9 @@ export async function restoreBackup(payload: BackupPayload): Promise<void> {
     const profileAvatarRow = await db.getFirstAsync<SettingRow>(
       "SELECT key, value FROM settings WHERE key = 'profile_avatar_version';",
     );
+    const themeModeRow = await db.getFirstAsync<SettingRow>(
+      "SELECT key, value FROM settings WHERE key = 'theme_mode';",
+    );
 
     for (const table of TABLES) {
       await db.runAsync(`DELETE FROM ${table};`);
@@ -132,6 +135,10 @@ export async function restoreBackup(payload: BackupPayload): Promise<void> {
       "INSERT INTO settings (key, value) VALUES ('app_biometric_enabled', ?);",
       [biometricRow?.value ?? '0'],
     );
+    await db.runAsync(
+      "INSERT INTO settings (key, value) VALUES ('theme_mode', ?);",
+      [themeModeRow?.value ?? 'system'],
+    );
     if (profileNameRow) {
       await db.runAsync(
         "INSERT INTO settings (key, value) VALUES ('profile_name', ?);",
@@ -164,6 +171,7 @@ export async function resetAllData(): Promise<void> {
     await db.runAsync("INSERT INTO settings (key, value) VALUES ('budget_cycle_start_day', '1');");
     await db.runAsync("INSERT INTO settings (key, value) VALUES ('app_lock_enabled', '0');");
     await db.runAsync("INSERT INTO settings (key, value) VALUES ('app_biometric_enabled', '0');");
+    await db.runAsync("INSERT INTO settings (key, value) VALUES ('theme_mode', 'system');");
   });
   await deleteProfilePhotoFiles();
   await seedIfEmpty(getDb());

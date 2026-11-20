@@ -1,7 +1,7 @@
 import Svg, { Circle } from 'react-native-svg';
 
 import { percent } from '@/utils/format';
-import { colors } from '@/theme/theme';
+import { useTheme } from '@/theme/theme-provider';
 
 /** Progress ring donat kecil untuk target tabungan. */
 export function ProgressRing({
@@ -13,6 +13,7 @@ export function ProgressRing({
   progress: number;
   color: string;
 }) {
+  const { colors } = useTheme();
   const stroke = 8;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;

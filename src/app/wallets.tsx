@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AmountInput } from '@/components/ui/amount-input';
 import { AppIcon } from '@/components/ui/app-icon';
@@ -17,7 +17,8 @@ import {
 import { walletBalances } from '@/db/repositories/transactions.repository';
 import { useDataStore } from '@/store/use-data-store';
 import { formatRupiah } from '@/utils/format';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 import type { IconName } from '@/constants/icons';
 import type { Wallet } from '@/db/types';
 
@@ -30,6 +31,8 @@ type EditorState = {
 };
 
 export default function WalletsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const bump = useDataStore((state) => state.bump);
 
   const [active, setActive] = useState<Wallet[]>([]);
@@ -271,7 +274,7 @@ function parseAmount(text: string): number {
   return Number(text.replace(/\D/g, '')) || 0;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   list: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl * 2 },
   row: {

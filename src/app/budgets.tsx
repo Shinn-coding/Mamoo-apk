@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AmountInput } from '@/components/ui/amount-input';
 import { AppIcon } from '@/components/ui/app-icon';
@@ -23,7 +23,8 @@ import {
 } from '@/utils/date';
 import { formatMonthLabel } from '@/utils/date';
 import { parseAmountInput } from '@/utils/format';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 import type { BudgetProgress } from '@/db/repositories/budgets.repository';
 
 type EditorMode =
@@ -32,6 +33,8 @@ type EditorMode =
   | null;
 
 export default function BudgetsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const bump = useDataStore((state) => state.bump);
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
 
@@ -220,7 +223,7 @@ export default function BudgetsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   monthNav: {
     flexDirection: 'row',
@@ -275,7 +278,7 @@ const styles = StyleSheet.create({
   },
   optionSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
   optionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
-  optionTextSelected: { color: colors.surface },
+  optionTextSelected: { color: colors.onPrimary },
   editCategory: {
     flexDirection: 'row',
     alignItems: 'center',

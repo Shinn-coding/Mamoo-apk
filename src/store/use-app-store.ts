@@ -8,10 +8,12 @@ import {
   setAppLockEnabled,
   setAppBiometricEnabled,
   setProfileName,
+  setThemeMode,
   type AppSettings,
 } from '../db/repositories/settings.repository';
 import { PROFILE_NAME_MAX } from '../constants/profile';
 import { clampCycleStartDay } from '../utils/date';
+import type { ThemeMode } from '../theme/theme';
 
 type AppState = {
   /** true setelah DB siap + seed selesai */
@@ -23,6 +25,7 @@ type AppState = {
   changeCycleStartDay: (day: number) => Promise<void>;
   changeAppLock: (enabled: boolean) => Promise<void>;
   changeAppBiometric: (enabled: boolean) => Promise<void>;
+  changeThemeMode: (mode: ThemeMode) => Promise<void>;
   changeProfileName: (name: string) => Promise<void>;
   /** muat ulang settings dari DB (setelah restore/reset) */
   refreshSettings: () => Promise<void>;
@@ -35,6 +38,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     budgetCycleStartDay: 1,
     appLockEnabled: false,
     biometricEnabled: false,
+    themeMode: 'system',
     profileName: '',
     profileAvatarVersion: '',
   },
@@ -67,6 +71,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   changeAppBiometric: async (enabled) => {
     await setAppBiometricEnabled(enabled);
     set({ settings: { ...get().settings, biometricEnabled: enabled } });
+  },
+
+  changeThemeMode: async (mode) => {
+    await setThemeMode(mode);
+    set({ settings: { ...get().settings, themeMode: mode } });
   },
 
   changeProfileName: async (name) => {

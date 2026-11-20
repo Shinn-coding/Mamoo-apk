@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 
 type Props = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -10,6 +11,8 @@ type Props = {
 };
 
 export function EmptyState({ icon, title, message }: Props) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.container}>
       <View style={styles.badge}>
@@ -21,7 +24,7 @@ export function EmptyState({ icon, title, message }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     alignItems: 'center',
     gap: spacing.sm,

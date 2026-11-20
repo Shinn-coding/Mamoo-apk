@@ -11,7 +11,7 @@ import {
   type AlertButton,
 } from 'react-native';
 import { Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { ProfileAvatar } from '@/components/ui/profile-avatar';
 import { PROFILE_NAME_MAX, PROFILE_PHOTO_MAX_MB } from '@/constants/profile';
@@ -22,11 +22,14 @@ import {
   sanitizeProfileName,
   type ProfilePhotoSource,
 } from '@/utils/profile';
-import { colors, radius, shadow, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, shadow, spacing, type ThemeColors } from '@/theme/theme';
 
 type Busy = 'photo' | 'name' | null;
 
 export default function ProfileScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const profileName = useAppStore((state) => state.settings.profileName);
   const hasPhoto = useAppStore((state) => state.settings.profileAvatarVersion.length > 0);
   const changeProfileName = useAppStore((state) => state.changeProfileName);
@@ -150,9 +153,9 @@ export default function ProfileScreen() {
             <ProfileAvatar size={116} />
             <View style={styles.cameraBadge}>
               {busy === 'photo' ? (
-                <ActivityIndicator size="small" color={colors.surface} />
+                <ActivityIndicator size="small" color={colors.onPrimary} />
               ) : (
-                <Ionicons name="camera" size={18} color={colors.surface} />
+                <Ionicons name="camera" size={18} color={colors.onPrimary} />
               )}
             </View>
           </Pressable>
@@ -203,7 +206,7 @@ export default function ProfileScreen() {
               ]}
             >
               {busy === 'name' ? (
-                <ActivityIndicator size="small" color={colors.surface} />
+                <ActivityIndicator size="small" color={colors.onPrimary} />
               ) : (
                 <Text style={styles.saveText}>Simpan Nama</Text>
               )}
@@ -241,7 +244,7 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: {
     padding: spacing.lg,
@@ -314,7 +317,7 @@ const styles = StyleSheet.create({
   },
   saveButtonDisabled: { opacity: 0.55 },
   saveButtonPressed: { backgroundColor: colors.primaryDark },
-  saveText: { color: colors.surface, fontSize: 14, fontWeight: '800' },
+  saveText: { color: colors.onPrimary, fontSize: 14, fontWeight: '800' },
   hint: { fontSize: 12, color: colors.textMuted, lineHeight: 17 },
   infoCard: {
     backgroundColor: colors.surface,

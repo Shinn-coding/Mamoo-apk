@@ -1,26 +1,30 @@
 import type { PropsWithChildren } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { colors, radius, shadow, spacing } from '@/theme/theme';
+import { useThemedStyles } from '@/theme/theme-provider';
+import { radius, shadow, spacing, type ThemeColors } from '@/theme/theme';
 
 export function Card({
   children,
   style,
 }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
+  const styles = useThemedStyles(createStyles);
   return (
     <View style={[styles.card, shadow.card, style]}>{children}</View>
   );
 }
 
 export function SectionTitle({ children }: PropsWithChildren) {
+  const styles = useThemedStyles(createStyles);
   return <Text style={styles.section}>{children}</Text>;
 }
 
 export function MutedText({ children }: PropsWithChildren) {
+  const styles = useThemedStyles(createStyles);
   return <Text style={styles.muted}>{children}</Text>;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.card,

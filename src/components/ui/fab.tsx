@@ -1,18 +1,21 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { colors, radius, spacing, shadow } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, shadow, type ThemeColors } from '@/theme/theme';
 
 /** Tombol tambah hijau — mengarah ke form transaksi (isi datanya fase 2). */
 export function Fab() {
   const router = useRouter();
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={[styles.button, shadow.card]}>
       <Ionicons
         name="add"
         size={30}
-        color={colors.surface}
+        color={colors.onPrimary}
         onPress={() => router.push('/transaction/new')}
         style={styles.icon}
       />
@@ -20,7 +23,7 @@ export function Fab() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   button: {
     position: 'absolute',
     right: spacing.lg,

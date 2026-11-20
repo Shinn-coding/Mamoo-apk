@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AppIcon } from '@/components/ui/app-icon';
 import { BudgetCard } from '@/components/budget/budget-card';
@@ -23,10 +23,26 @@ import { useAppStore } from '@/store/use-app-store';
 import { useDataVersion } from '@/store/use-data-store';
 import { cycleKey, formatDayLabel, getCycleRange, todayLocal } from '@/utils/date';
 import { formatRupiah, formatRupiahSigned } from '@/utils/format';
-import { colors, radius, shadow, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, shadow, spacing, type ThemeColors } from '@/theme/theme';
 import type { Category, Transaction } from '@/db/types';
 
+function HeroShell({ children }: { children: ReactNode }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  if (Platform.OS === 'ios') {
+    return (
+      <GlassView style={styles.hero} glassEffectStyle="regular" tintColor={colors.primary}>
+        {children}
+      </GlassView>
+    );
+  }
+  return <View style={styles.hero}>{children}</View>;
+}
+
 export default function HomeScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const ready = useAppStore((state) => state.ready);
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
@@ -92,11 +108,7 @@ export default function HomeScreen() {
       </Pressable>
 
       <View style={styles.heroWrap}>
-        <GlassView
-          style={styles.hero}
-          glassEffectStyle="regular"
-          tintColor={colors.primary}
-        >
+        <HeroShell>
           <View style={[styles.heroSheen, styles.heroSheenTop]} pointerEvents="none" />
           <View style={[styles.heroSheen, styles.heroSheenBottom]} pointerEvents="none" />
           <Text style={styles.heroLabel}>Saldo Bebas</Text>
@@ -112,7 +124,7 @@ export default function HomeScreen() {
               Saldo bebas minus — ada pengeluaran yang melebihi uangmu.
             </Text>
           ) : null}
-        </GlassView>
+        </HeroShell>
       </View>
 
       <View style={styles.body}>
@@ -229,7 +241,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   greeting: {
     flexDirection: 'row',
@@ -275,10 +287,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.07)',
   },
   heroLabel: { color: colors.primaryLight, fontSize: 13, fontWeight: '600' },
-  heroAmount: { color: colors.surface, fontSize: 36, fontWeight: '800' },
+  heroAmount: { color: colors.onPrimary, fontSize: 36, fontWeight: '800' },
   heroAmountNegative: { color: colors.expense },
   heroCycle: { color: colors.primaryLight, fontSize: 12 },
-  heroWarning: { color: colors.surface, fontSize: 12, fontWeight: '700' },
+  heroWarning: { color: colors.onPrimary, fontSize: 12, fontWeight: '700' },
   scroll: { paddingBottom: 120 },
   body: { gap: spacing.md, padding: spacing.lg },
   summaryRow: { flexDirection: 'row', gap: spacing.lg },

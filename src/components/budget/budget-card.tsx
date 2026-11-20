@@ -4,9 +4,10 @@ import { AppIcon } from '@/components/ui/app-icon';
 import { formatRupiah } from '@/utils/format';
 import { percent } from '@/utils/format';
 import type { BudgetProgress } from '@/db/repositories/budgets.repository';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 
-function barColor(progress: number): string {
+function barColor(progress: number, colors: ThemeColors): string {
   if (progress >= 100) return colors.expense;
   if (progress >= 80) return colors.warning;
   return colors.primary;
@@ -20,8 +21,10 @@ export function BudgetCard({
   budget: BudgetProgress;
   onPress?: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const progress = percent(budget.spent, budget.amount);
-  const color = barColor(progress);
+  const color = barColor(progress, colors);
   return (
     <Pressable style={styles.card} onPress={onPress}>
       <View style={styles.header}>
@@ -48,7 +51,7 @@ export function BudgetCard({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.card,

@@ -1,7 +1,8 @@
 import { StyleSheet, TextInput, View, Text } from 'react-native';
 
 import { formatAmountInput } from '@/utils/format';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 
 /**
  * Input nominal Rupiah: keypad angka, tampil "1.250.000".
@@ -16,6 +17,8 @@ export function AmountInput({
   onChangeText: (formatted: string) => void;
   invalid?: boolean;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={[styles.wrap, invalid && styles.invalid]}>
       <Text style={styles.prefix}>Rp</Text>
@@ -32,7 +35,7 @@ export function AmountInput({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: {
     flexDirection: 'row',
     alignItems: 'center',

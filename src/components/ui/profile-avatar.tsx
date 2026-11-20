@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Image } from 'expo-image';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useAppStore } from '@/store/use-app-store';
 import { profileAvatarUri } from '@/utils/profile';
-import { colors } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import type { ThemeColors } from '@/theme/theme';
 
 type Props = {
   size?: number;
@@ -18,6 +19,8 @@ export function ProfileAvatar({ size = 52, name }: Props) {
   const storedName = useAppStore((state) => state.settings.profileName);
   const avatarVersion = useAppStore((state) => state.settings.profileAvatarVersion);
   const [failed, setFailed] = useState(false);
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
 
   const displayName = (name ?? storedName).trim();
   const uri = profileAvatarUri(avatarVersion);
@@ -54,7 +57,7 @@ export function ProfileAvatar({ size = 52, name }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     backgroundColor: colors.primaryLight,
     alignItems: 'center',

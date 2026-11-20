@@ -4,7 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppIcon } from '@/components/ui/app-icon';
 import { listWallets } from '@/db/repositories/wallets.repository';
 import { useDataVersion } from '@/store/use-data-store';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 import type { Wallet } from '@/db/types';
 
 /** Pilihan dompet berbentuk chip. */
@@ -16,6 +17,8 @@ export function WalletChips({
   onSelect: (wallet: Wallet) => void;
 }) {
   const version = useDataVersion();
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [wallets, setWallets] = useState<Wallet[]>([]);
 
   useEffect(() => {
@@ -43,7 +46,7 @@ export function WalletChips({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
     flexDirection: 'row',
@@ -58,5 +61,5 @@ const styles = StyleSheet.create({
   },
   chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipText: { fontSize: 13, color: colors.text },
-  chipTextSelected: { color: colors.surface, fontWeight: '700' },
+  chipTextSelected: { color: colors.onPrimary, fontWeight: '700' },
 });

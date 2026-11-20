@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AmountInput } from '@/components/ui/amount-input';
 import { CategoryGrid } from '@/components/transaction/category-grid';
@@ -19,11 +19,14 @@ import { getDb } from '@/db/db';
 import { useDataStore } from '@/store/use-data-store';
 import { todayLocal, type LocalDate } from '@/utils/date';
 import { parseAmountInput } from '@/utils/format';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 
 type FormType = 'expense' | 'income';
 
 export default function NewTransactionScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ id?: string }>();
   const editId = params.id ? Number(params.id) : null;
 
@@ -225,7 +228,7 @@ export default function NewTransactionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xl * 2 },
   typeSwitch: {
@@ -246,7 +249,7 @@ const styles = StyleSheet.create({
   typeActiveExpense: { backgroundColor: colors.expense },
   typeActiveIncome: { backgroundColor: colors.primary },
   typeText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-  typeTextActive: { color: colors.surface },
+  typeTextActive: { color: colors.onPrimary },
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
@@ -272,7 +275,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
     marginTop: spacing.sm,
   },
-  saveText: { color: colors.surface, fontSize: 16, fontWeight: '800' },
+  saveText: { color: colors.onPrimary, fontSize: 16, fontWeight: '800' },
   deleteButton: {
     alignItems: 'center',
     paddingVertical: spacing.md,

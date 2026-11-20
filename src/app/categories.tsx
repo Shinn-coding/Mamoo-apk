@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AppIcon } from '@/components/ui/app-icon';
 import { getDb } from '@/db/db';
@@ -16,9 +16,12 @@ import { countByCategory } from '@/db/repositories/transactions.repository';
 import { useDataStore } from '@/store/use-data-store';
 import { COLOR_PALETTE, ICON_OPTIONS, type IconName } from '@/constants/icons';
 import type { Category, CategoryType } from '@/db/types';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 
 export default function CategoriesScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const bump = useDataStore((state) => state.bump);
 
   const [type, setType] = useState<CategoryType>('expense');
@@ -246,7 +249,7 @@ export default function CategoriesScreen() {
                   onPress={() => setColor(option)}
                 >
                   {color === option ? (
-                    <Ionicons name="checkmark" size={18} color={colors.surface} />
+                    <Ionicons name="checkmark" size={18} color={colors.onPrimary} />
                   ) : null}
                 </Pressable>
               ))}
@@ -276,6 +279,8 @@ function CategoryRow({
   onEdit: () => void;
   onAction: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [used, setUsed] = useState(false);
   useEffect(() => {
     void countByCategory(category.id).then((n) => setUsed(n > 0));
@@ -306,7 +311,7 @@ async function restoreCategory(id: number): Promise<void> {
 
 const CIRCLE = 44;
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   typeSwitch: {
     flexDirection: 'row',
@@ -322,7 +327,7 @@ const styles = StyleSheet.create({
   typeButton: { flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: radius.button - 2 },
   typeActive: { backgroundColor: colors.primary },
   typeText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
-  typeTextActive: { color: colors.surface },
+  typeTextActive: { color: colors.onPrimary },
   list: { padding: spacing.lg, paddingTop: 0, gap: spacing.sm, paddingBottom: spacing.xl * 2 },
   row: {
     flexDirection: 'row',

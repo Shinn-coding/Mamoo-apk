@@ -1,5 +1,9 @@
-/** Deklarasi modul aset non-gambar yang dibundling Metro. */
-declare module '*.wav' {
-  const asset: number;
-  export default asset;
+declare module '*.png' {
+  const value: number;
+  export default value;
+}
+
+declare module '*.webp' {
+  const value: number;
+  export default value;
 }

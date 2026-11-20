@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { AppIcon } from '@/components/ui/app-icon';
@@ -20,7 +20,8 @@ import {
   todayLocal,
 } from '@/utils/date';
 import { formatRupiahSigned } from '@/utils/format';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 import type { Category, Transaction, TransactionType, Wallet } from '@/db/types';
 
 type TypeFilter = 'all' | 'expense' | 'income';
@@ -28,6 +29,8 @@ type TypeFilter = 'all' | 'expense' | 'income';
 type Section = { title: string; data: Transaction[] };
 
 export default function TransactionsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const router = useRouter();
   const version = useDataVersion();
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
@@ -186,7 +189,7 @@ export default function TransactionsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   topBar: {
     flexDirection: 'row',
@@ -230,7 +233,7 @@ const styles = StyleSheet.create({
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipText: { fontSize: 13, color: colors.textMuted },
-  chipTextActive: { color: colors.surface, fontWeight: '700' },
+  chipTextActive: { color: colors.onPrimary, fontWeight: '700' },
   search: {
     flex: 1,
     backgroundColor: colors.surface,

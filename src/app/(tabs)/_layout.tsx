@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { GlassTabBar } from '@/components/ui/glass-tab-bar';
-import { colors } from '@/theme/theme';
+import { useThemedStyles } from '@/theme/theme-provider';
+import type { ThemeColors } from '@/theme/theme';
 
 const TAB_ICONS = {
   index: 'home-outline',
@@ -14,16 +15,18 @@ const TAB_ICONS = {
 } as const;
 
 export default function TabsLayout() {
+  const styles = useThemedStyles(createStyles);
   return (
     <Tabs
       tabBar={(props) => <GlassTabBar {...props} />}
-      detachInactiveScreens={false}
+      detachInactiveScreens
       screenOptions={{
         headerShown: true,
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,
         headerShadowVisible: false,
-        // Transisi layar antar tab: cross-fade halus.
+        // Cross-fade tetap dipertahankan; layar yang tidak aktif di-detach
+        // supaya memori tidak menumpuk di HP kecil.
         animation: 'fade',
       }}
     >
@@ -36,15 +39,16 @@ export default function TabsLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    backgroundColor: colors.background,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  headerTitle: {
-    color: colors.text,
-    fontWeight: '700',
-    fontSize: 17,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    header: {
+      backgroundColor: colors.background,
+      shadowOpacity: 0,
+      elevation: 0,
+    },
+    headerTitle: {
+      color: colors.text,
+      fontWeight: '700',
+      fontSize: 17,
+    },
+  });

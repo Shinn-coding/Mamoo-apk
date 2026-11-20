@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AmountInput } from '@/components/ui/amount-input';
 import { AppIcon } from '@/components/ui/app-icon';
@@ -24,10 +24,13 @@ import {
   type LocalDate,
 } from '@/utils/date';
 import { formatRupiah, parseAmountInput, percent } from '@/utils/format';
-import { colors, radius, spacing } from '@/theme/theme';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
+import { radius, spacing, type ThemeColors } from '@/theme/theme';
 import type { GoalEntry, Wallet } from '@/db/types';
 
 export default function GoalDetailScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ id: string }>();
   const goalId = Number(params.id);
   const bump = useDataStore((state) => state.bump);
@@ -181,7 +184,7 @@ export default function GoalDetailScreen() {
           <>
             <View style={styles.actionRow}>
               <Pressable style={[styles.actionButton, { backgroundColor: colors.primary }]} onPress={() => openAction('deposit')}>
-                <Ionicons name="add" size={18} color={colors.surface} />
+                <Ionicons name="add" size={18} color={colors.onPrimary} />
                 <Text style={styles.actionText}>Setor</Text>
               </Pressable>
               <Pressable style={[styles.actionButton, styles.withdrawButton]} onPress={() => openAction('withdraw')}>
@@ -274,7 +277,7 @@ export default function GoalDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   list: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl * 2 },
   heroCard: {
@@ -305,7 +308,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  actionText: { color: colors.surface, fontWeight: '800', fontSize: 15 },
+  actionText: { color: colors.onPrimary, fontWeight: '800', fontSize: 15 },
   completeButton: {
     alignItems: 'center',
     backgroundColor: colors.primaryLight,

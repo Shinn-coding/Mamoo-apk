@@ -2,17 +2,26 @@
 import { getDb } from '../db';
 import { PROFILE_NAME_MAX } from '../../constants/profile';
 import { clampCycleStartDay } from '../../utils/date';
+import type { ThemeMode } from '../../theme/theme';
 
 export type AppSettings = {
   /** tanggal mulai siklus anggaran: 1–28 */
   budgetCycleStartDay: number;
   appLockEnabled: boolean;
   biometricEnabled: boolean;
+  /** Preferensi tampilan perangkat; tidak ikut backup. */
+  themeMode: ThemeMode;
   /** nama pemilik HP — bagian dari identitas perangkat, bukan akun */
   profileName: string;
   /** versi/nama file foto profil; kosong = belum ada foto */
   profileAvatarVersion: string;
 };
+
+const THEME_MODES: ThemeMode[] = ['system', 'light', 'dark'];
+
+function parseThemeMode(value: string | undefined): ThemeMode {
+  return THEME_MODES.includes(value as ThemeMode) ? (value as ThemeMode) : 'system';
+}
 
 export async function getSettings(): Promise<AppSettings> {
   const db = getDb();
@@ -22,6 +31,7 @@ export async function getSettings(): Promise<AppSettings> {
     budgetCycleStartDay: clampCycleStartDay(Number(map.get('budget_cycle_start_day') ?? '1')),
     appLockEnabled: (map.get('app_lock_enabled') ?? '0') === '1',
     biometricEnabled: (map.get('app_biometric_enabled') ?? '0') === '1',
+    themeMode: parseThemeMode(map.get('theme_mode')),
     profileName: (map.get('profile_name') ?? '').slice(0, PROFILE_NAME_MAX),
     profileAvatarVersion: map.get('profile_avatar_version') ?? '',
   };
@@ -45,6 +55,10 @@ export async function setAppLockEnabled(enabled: boolean): Promise<void> {
 
 export async function setAppBiometricEnabled(enabled: boolean): Promise<void> {
   await setSetting('app_biometric_enabled', enabled ? '1' : '0');
+}
+
+export async function setThemeMode(mode: ThemeMode): Promise<void> {
+  await setSetting('theme_mode', parseThemeMode(mode));
 }
 
 export async function setProfileName(name: string): Promise<void> {
