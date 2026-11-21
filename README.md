@@ -97,35 +97,6 @@ APK rilis sekitar **±109 MB** karena berisi empat arsitektur CPU sekaligus (uni
 - `expo-splash-screen` — splash & intro
 - `expo-image-picker`, `expo-image-manipulator`, `expo-image` — foto profil lokal (kompres + cache)
 
-## Cara Menjalankan
-
-```bash
-npm install
-npx expo start
-```
-
-- **Expo Go (tercepat):** scan QR dengan aplikasi Expo Go (HP & laptop satu jaringan).
-- **Android:** `npx expo start --android`
-- **iOS:** `npx expo start --ios`
-
-## Build APK
-
-Dengan EAS (butuh akun Expo gratis):
-
-```bash
-npm install -g eas-cli   # sekali saja
-eas login
-eas init
-eas build -p android --profile preview
-```
-
-Selesai build → dapat link/QR APK → download di HP → install (izinkan "sumber tidak dikenal").
-
-Build lokal (butuh Android Studio/SDK):
-
-```bash
-npx expo run:android --variant release
-```
 
 ## Struktur Project
 
