@@ -21,8 +21,10 @@ Mamoo adalah aplikasi pencatat keuangan pribadi yang menyimpan seluruh data **di
 - **Laporan** — donut pengeluaran per kategori, bar pemasukan vs pengeluaran harian, ranking kategori terbesar.
 - **Backup & Ekspor** — backup semua data keuangan ke file JSON (bisa dipulihkan kapan saja), ekspor transaksi ke CSV untuk Excel/Google Sheets.
 - **Profil lokal** — atur nama panggilan + foto sebagai penanda HP ini. Tanpa akun/login; foto maksimal 10 MB dan otomatis diperkecil jadi ±150 KB.
-- **Kunci aplikasi** — PIN 4–6 digit (hash disimpan aman di `expo-secure-store`, bukan database) + opsional biometrik. Lupa PIN → reset dengan konfirmasi dua langkah.
-- **Intro animasi** — splash digital: glass tile muncul, monogram m digambar sebagai satu garis, batang kanan naik menjadi panah, sparkle emas tipis di ujung panah, lalu wordmark muncul huruf-per-huruf dengan shimmer.
+- **Kunci aplikasi** — PIN 4–6 digit (hash disimpan aman di `expo-secure-store`, bukan database) + opsional biometrik. Jumlah titik PIN mengikuti panjang PIN, maksimal **5× PIN salah → jeda 30 detik**, maksimal **3× biometrik gagal → wajib PIN**, dan aplikasi mengunci lagi otomatis **30 detik** setelah ditinggal ke background. Lupa PIN → reset dengan konfirmasi dua langkah.
+- **Tema Terang / Gelap / Sistem** — pilihan tema tersimpan di SQLite. Tidak ikut file backup JSON, tidak berubah saat restore, dan kembali ke "Sistem" saat reset data.
+- **Tab bar liquid glass** — panel translucent (native di iOS, panel ringan di Android). Indikator pill bisa **digeser/di-drag** lalu snap ke tab terdekat, dan tetap merespons ketukan.
+- **Intro minimalis** — wordmark Mamoo putih di atas hijau brand `#179C51`, animasi fade + scale halus ±1,6 detik, bisa di-tap untuk lewati. Tanpa partikel, audio, atau animasi JS berat — dan tanpa kedipan hitam saat masuk.
 
 ## Cara Pakai
 
@@ -34,7 +36,7 @@ Mamoo adalah aplikasi pencatat keuangan pribadi yang menyimpan seluruh data **di
 6. **Tabungan** — buat target (nama, ikon, nominal, tenggat opsional) → setor dana (mengunci saldo dompet) → tarik dana bila perlu; target selesai/batal otomatis melepas dananya.
 7. **Laporan** — pilih periode/siklus untuk melihat donut kategori, bar harian, dan ranking pengeluaran.
 8. **Profil** — buka kartu profil di Pengaturan (atau sapaan di Beranda) → pilih foto dari galeri/kamera → isi nama → Simpan. Foto otomatis dipotong persegi dan diperkecil; foto lama dihapus agar tidak menumpuk.
-9. **Pengaturan** — atur tanggal mulai siklus, backup/restore JSON, ekspor CSV, kunci aplikasi, dan reset data.
+9. **Pengaturan** — atur tanggal mulai siklus, **pilih tema (Sistem / Terang / Gelap)**, backup/restore JSON, ekspor CSV, kunci aplikasi & biometrik, dan reset data.
 
 **Backup rutin:** Pengaturan → Backup & Ekspor → Backup Data (JSON) → simpan filenya (WhatsApp/Drive/Files). Data hanya ada di HP, jadi backup adalah satu-satunya cara pindah HP.
 
@@ -62,6 +64,12 @@ Supaya pemilihan foto besar tidak membebani HP. Setelah dipilih, Mamoo memotongn
 **Foto profil ikut backup?**
 Tidak. File backup JSON sengaja tidak memuat foto pribadi dan tetap ringan. Nama juga tidak ikut karena profil dianggap identitas perangkat, seperti PIN.
 
+**Setelan tema ikut backup?**
+Tidak. Tema tersimpan di perangkat ini, jadi restore tidak menimpa tema HP yang dipakai. Saat **reset data**, tema kembali ke "Sistem".
+
+**Kenapa pindah tab tidak pakai animasi?**
+Perpindahan tab dibuat instan: tidak ada frame tambahan, lebih hemat RAM/baterai, dan tidak memunculkan kedipan latar saat mode gelap.
+
 **Lupa PIN?**
 Di layar kunci ketuk **Lupa PIN** → konfirmasi dua langkah → aplikasi direset (semua data terhapus). Karena tidak ada server, PIN tidak bisa dipulihkan tanpa reset. Saran: backup rutin.
 
@@ -71,16 +79,22 @@ APK untuk Android. iOS butuh build terpisah (mis. via EAS + TestFlight).
 **Minimal Android berapa?**
 Android 7.0 (Nougat) ke atas — hampir semua HP umum.
 
+**Berapa ukuran APK-nya?**
+APK rilis sekitar **±109 MB** karena berisi empat arsitektur CPU sekaligus (universal APK). Untuk Play Store, build `aab` hanya mengirim bagian yang cocok sehingga unduhannya jauh lebih kecil.
+
 ## Teknologi
 
 - [Expo SDK 58](https://expo.dev) + React Native + TypeScript (strict, tanpa `any`)
 - [Expo Router](https://docs.expo.dev/router/introduction/) — navigasi
 - `expo-sqlite` — database lokal (migrasi via `PRAGMA user_version`)
 - `zustand` — state ringan
-- `react-native-svg` — grafik laporan, tab bar glass, intro animasi
+- `react-native-svg` — grafik laporan & tab bar
+- `react-native-reanimated` 4 + `react-native-gesture-handler` + `react-native-worklets` — animasi & drag tab bar di UI thread
+- `expo-glass-effect` — panel liquid glass (iOS)
+- `expo-system-ui` — menyelaraskan warna root window dengan tema aktif
 - `expo-file-system`, `expo-sharing`, `expo-document-picker` — backup/ekspor
 - `expo-secure-store`, `expo-crypto`, `expo-local-authentication` — PIN/biometrik
-- `expo-audio`, `expo-splash-screen` — intro animasi & suara
+- `expo-splash-screen` — splash & intro
 - `expo-image-picker`, `expo-image-manipulator`, `expo-image` — foto profil lokal (kompres + cache)
 
 ## Cara Menjalankan
@@ -122,9 +136,12 @@ src/
   db/              # koneksi, migrasi, seed, types
   db/repositories/ # SEMUA query SQL di sini — UI tidak menyentuh SQL
   store/           # Zustand (settings, versi data)
-  theme/           # design token (warna, spacing, radius)
-  utils/           # tanggal lokal, rupiah, siklus, CSV, backup, PIN
-scripts/           # generator aset (logo PNG, suara intro)
+  theme/           # design token + ThemeProvider (Sistem / Terang / Gelap)
+  utils/           # tanggal lokal, rupiah, siklus, CSV, backup, PIN, biometrik
+assets/
+  brand/           # sumber resmi logo (brand sheet)
+  images/          # ikon APK, wordmark, aset gambar
+scripts/           # generator ikon APK (make-logo.mjs)
 ```
 
 ## Catatan Data
@@ -134,8 +151,11 @@ scripts/           # generator aset (logo PNG, suara intro)
 - Backup JSON **tidak menyertakan PIN/hash PIN** — kunci aplikasi tetap milik perangkat.
 - Foto profil disimpan sebagai file JPEG kecil di folder dokumen app (bukan BLOB SQLite), supaya database tetap cepat dan backup tetap ringan.
 - Profil (nama + foto) juga diperlakukan sebagai identitas perangkat: tidak ikut backup, tetapi tetap ada saat restore di HP yang sama.
+- Pilihan tema disimpan di tabel `settings`: tidak ikut file backup, tidak berubah saat restore, dan kembali ke `system` saat reset data.
 - Restore berjalan dalam satu transaksi SQL: gagal di tengah jalan = tidak ada data tertulis setengah.
 
 ## Lisensi
 
-[MIT](./LICENSE) © 2026 Mamoo — bebas dipakai, dimodifikasi, dan dibagikan dengan tetap mencantumkan lisensi asli.
+Mamoo adalah perangkat lunak **proprietary** — lihat [`LICENSE`](./LICENSE).
+
+© 2026 Mamoo / **@Shinn-dev**. Seluruh hak dilindungi. Hanya **@Shinn-dev** yang boleh mengubah, mengembangkan, dan menerbitkan aplikasi ini.
