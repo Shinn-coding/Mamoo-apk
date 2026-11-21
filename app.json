@@ -10,7 +10,7 @@
     "android": {
       "package": "com.mamoo.app",
       "adaptiveIcon": {
-        "backgroundColor": "#179C51",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"

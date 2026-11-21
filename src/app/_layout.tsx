@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, StyleSheet, Text, View } from 'react-native';
-import { Stack } from 'expo-router';
+import {
+  DarkTheme,
+  DefaultTheme,
+  Stack,
+  ThemeProvider as NavThemeProvider,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -18,11 +23,27 @@ const LOCK_AFTER_BACKGROUND_MS = 30_000;
 function RootContent() {
   const { ready, initError, init } = useAppStore();
   const appLockEnabled = useAppStore((state) => state.settings.appLockEnabled);
-  const { isDark } = useTheme();
+  const { isDark, colors } = useTheme();
   const styles = useThemedStyles(createStyles);
   const [unlocked, setUnlocked] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
   const backgroundAt = useRef<number | null>(null);
+
+  const navTheme = useMemo(() => {
+    const base = isDark ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      dark: isDark,
+      colors: {
+        ...base.colors,
+        background: colors.background,
+        card: colors.background,
+        text: colors.text,
+        border: colors.border,
+        primary: colors.primary,
+      },
+    };
+  }, [isDark, colors]);
 
   useEffect(() => {
     void init();
@@ -78,17 +99,24 @@ function RootContent() {
         appLockEnabled && !unlocked ? (
           <AppLock active={splashDone} onUnlock={() => setUnlocked(true)} />
         ) : (
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen
-              name="transaction/new"
-              options={{ presentation: 'modal', title: 'Tambah Transaksi' }}
-            />
-            <Stack.Screen
-              name="pin-setup"
-              options={{ presentation: 'modal', title: 'Kunci Aplikasi' }}
-            />
-          </Stack>
+          <NavThemeProvider value={navTheme}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: colors.background },
+              }}
+            >
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen
+                name="transaction/new"
+                options={{ presentation: 'modal', title: 'Tambah Transaksi' }}
+              />
+              <Stack.Screen
+                name="pin-setup"
+                options={{ presentation: 'modal', title: 'Kunci Aplikasi' }}
+              />
+            </Stack>
+          </NavThemeProvider>
         )
       ) : null}
 

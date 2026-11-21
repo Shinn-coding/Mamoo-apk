@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { GlassTabBar } from '@/components/ui/glass-tab-bar';
-import { useThemedStyles } from '@/theme/theme-provider';
+import { useTheme, useThemedStyles } from '@/theme/theme-provider';
 import type { ThemeColors } from '@/theme/theme';
 
 const TAB_ICONS = {
@@ -16,6 +16,7 @@ const TAB_ICONS = {
 
 export default function TabsLayout() {
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <Tabs
       tabBar={(props) => <GlassTabBar {...props} />}
@@ -25,9 +26,9 @@ export default function TabsLayout() {
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,
         headerShadowVisible: false,
-        // Cross-fade tetap dipertahankan; layar yang tidak aktif di-detach
-        // supaya memori tidak menumpuk di HP kecil.
-        animation: 'fade',
+        // Standar native: instan tanpa cross-fade delay dan tanpa kebocoran warna kontainer di mode gelap
+        animation: 'none',
+        sceneStyle: { backgroundColor: colors.background },
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'Beranda', tabBarLabel: 'Beranda', tabBarIcon: ({ color }) => <Ionicons name={TAB_ICONS.index} size={24} color={String(color)} /> }} />
