@@ -19,6 +19,7 @@ import {
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { GlassView } from 'expo-glass-effect';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -78,10 +79,21 @@ function GlassPanel({
   );
 }
 
-const BAR_HEIGHT = 72;
+const TAB_BAR_HEIGHT = 72;
+const TAB_BAR_GAP = 12;
 const INDICATOR_WIDTH = 58;
 const INDICATOR_HEIGHT = 46;
 const SPRING = { damping: 18, stiffness: 190, mass: 0.8 };
+
+/**
+ * Ruang yang harus disisakan di bawah konten supaya tidak tertutup tab bar
+ * melayang. Dipakai semua layar tab sebagai padding bawah ScrollView/List
+ * dan sebagai dasar posisi FAB.
+ */
+export function useTabBarClearance(): number {
+  const insets = useSafeAreaInsets();
+  return TAB_BAR_HEIGHT + Math.max(insets.bottom, TAB_BAR_GAP) + TAB_BAR_GAP + spacing.md;
+}
 
 export function GlassTabBar({
   state,
@@ -170,7 +182,7 @@ export function GlassTabBar({
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.wrap, { bottom: Math.max(insets.bottom, 12) + 12 }]}
+      style={[styles.wrap, { bottom: Math.max(insets.bottom, TAB_BAR_GAP) + TAB_BAR_GAP }]}
     >
       <GlassPanel style={styles.panel}>
         <GestureDetector gesture={pan}>
@@ -250,10 +262,12 @@ const createStyles = (colors: ThemeColors) =>
       elevation: 8,
     },
     androidGlass: {
-      backgroundColor: 'rgba(255, 255, 255, 0.74)',
+      // Hampir opak: konten yang menggulir di belakang bar tidak boleh
+      // mengganggu keterbacaan label tab.
+      backgroundColor: 'rgba(255, 255, 255, 0.94)',
     },
     androidGlassDark: {
-      backgroundColor: 'rgba(18, 26, 22, 0.82)',
+      backgroundColor: 'rgba(18, 26, 22, 0.95)',
     },
     edge: {
       position: 'absolute',
@@ -264,7 +278,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     row: {
       flexDirection: 'row',
-      height: BAR_HEIGHT,
+      height: TAB_BAR_HEIGHT,
     },
     indicator: {
       position: 'absolute',

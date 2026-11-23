@@ -86,7 +86,7 @@ APK rilis sekitar **±109 MB** karena berisi empat arsitektur CPU sekaligus (uni
 
 - [Expo SDK 58](https://expo.dev) + React Native + TypeScript (strict, tanpa `any`)
 - [Expo Router](https://docs.expo.dev/router/introduction/) — navigasi
-- `expo-sqlite` — database lokal (migrasi via `PRAGMA user_version`)
+- `expo-sqlite` + SQLCipher — database lokal terenkripsi (migrasi via `PRAGMA user_version`)
 - `zustand` — state ringan
 - `react-native-svg` — grafik laporan & tab bar
 - `react-native-reanimated` 4 + `react-native-gesture-handler` + `react-native-worklets` — animasi & drag tab bar di UI thread
@@ -94,6 +94,7 @@ APK rilis sekitar **±109 MB** karena berisi empat arsitektur CPU sekaligus (uni
 - `expo-system-ui` — menyelaraskan warna root window dengan tema aktif
 - `expo-file-system`, `expo-sharing`, `expo-document-picker` — backup/ekspor
 - `expo-secure-store`, `expo-crypto`, `expo-local-authentication` — PIN/biometrik
+- `react-native-quick-crypto` — PBKDF2-HMAC-SHA256 untuk hash PIN (salt acak per PIN)
 - `expo-splash-screen` — splash & intro
 - `expo-image-picker`, `expo-image-manipulator`, `expo-image` — foto profil lokal (kompres + cache)
 
@@ -119,6 +120,8 @@ scripts/           # generator ikon APK (make-logo.mjs)
 
 - Nominal disimpan **rupiah utuh (INTEGER)**, tanpa desimal.
 - Tanggal transaksi memakai format lokal `YYYY-MM-DD` (bukan UTC) supaya input jam 00.00–06.59 tidak bergeser ke hari kemarin.
+- Database SQLite dienkripsi SQLCipher; kunci 32 byte disimpan di `expo-secure-store` (Android Keystore) dan tidak pernah ikut backup.
+- PIN disimpan sebagai hash PBKDF2-HMAC-SHA256 (120.000 iterasi, salt acak); hash lama otomatis ditingkatkan saat PIN berhasil dimasukkan.
 - Backup JSON **tidak menyertakan PIN/hash PIN** — kunci aplikasi tetap milik perangkat.
 - Foto profil disimpan sebagai file JPEG kecil di folder dokumen app (bukan BLOB SQLite), supaya database tetap cepat dan backup tetap ringan.
 - Profil (nama + foto) juga diperlakukan sebagai identitas perangkat: tidak ikut backup, tetapi tetap ada saat restore di HP yang sama.

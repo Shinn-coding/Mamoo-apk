@@ -18,7 +18,7 @@ import { walletBalances } from '@/db/repositories/transactions.repository';
 import { useDataStore } from '@/store/use-data-store';
 import { formatRupiah } from '@/utils/format';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
-import { radius, spacing, type ThemeColors } from '@/theme/theme';
+import { radius, spacing, surfaceCard, type ThemeColors } from '@/theme/theme';
 import type { IconName } from '@/constants/icons';
 import type { Wallet } from '@/db/types';
 
@@ -281,9 +281,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.md,
+    ...surfaceCard(colors),
   },
   rowMuted: { opacity: 0.7 },
   iconCircle: {

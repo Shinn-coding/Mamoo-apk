@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AppIcon } from '@/components/ui/app-icon';
 import { BudgetCard } from '@/components/budget/budget-card';
@@ -10,7 +9,9 @@ import { Card, MutedText, SectionTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Fab } from '@/components/ui/fab';
 import { GlassSceneTarget } from '@/components/ui/glass-scene';
+import { PageHeader } from '@/components/ui/page-header';
 import { ProfileAvatar } from '@/components/ui/profile-avatar';
+import { useTabBarClearance } from '@/components/ui/glass-tab-bar';
 import { listCategories } from '@/db/repositories/categories.repository';
 import { listBudgetsWithProgress, type BudgetProgress } from '@/db/repositories/budgets.repository';
 import { lockedTotal } from '@/db/repositories/goals.repository';
@@ -21,7 +22,7 @@ import {
 } from '@/db/repositories/transactions.repository';
 import { useAppStore } from '@/store/use-app-store';
 import { useDataVersion } from '@/store/use-data-store';
-import { cycleKey, formatDayLabel, getCycleRange, todayLocal } from '@/utils/date';
+import { cycleKey, formatDateRange, formatDayLabel, getCycleRange, todayLocal } from '@/utils/date';
 import { formatRupiah, formatRupiahSigned } from '@/utils/format';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
 import { radius, shadow, spacing, type ThemeColors } from '@/theme/theme';
@@ -44,6 +45,7 @@ export default function HomeScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const router = useRouter();
+  const clearance = useTabBarClearance();
   const ready = useAppStore((state) => state.ready);
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
   const profileName = useAppStore((state) => state.settings.profileName);
@@ -88,26 +90,23 @@ export default function HomeScreen() {
 
   return (
     <GlassSceneTarget name="index" style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-      <Pressable
-        style={styles.greeting}
-        onPress={() => router.push('/profile' as never)}
-        accessibilityRole="button"
-        accessibilityLabel={profileName ? `Buka profil ${profileName}` : 'Atur profil'}
-      >
-        <ProfileAvatar size={36} />
-        <View style={styles.greetingText}>
-          <Text style={styles.greetingTitle} numberOfLines={1}>
-            {profileName ? `Halo, ${profileName}` : 'Halo!'}
-          </Text>
-          <Text style={styles.greetingSub}>
-            {profileName ? 'Catatan keuangan pribadimu' : 'Ketuk untuk mengatur nama & foto'}
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-      </Pressable>
+      <PageHeader
+        title="Beranda"
+        subtitle={profileName ? `Halo, ${profileName}` : 'Ketuk avatar untuk atur profil'}
+        action={
+          <Pressable
+            onPress={() => router.push('/profile' as never)}
+            accessibilityRole="button"
+            accessibilityLabel={profileName ? `Buka profil ${profileName}` : 'Atur profil'}
+            hitSlop={8}
+          >
+            <ProfileAvatar size={40} />
+          </Pressable>
+        }
+      />
 
-      <View style={styles.heroWrap}>
+      <ScrollView contentContainerStyle={{ paddingBottom: clearance }}>
+        <View style={styles.heroWrap}>
         <HeroShell>
           <View style={[styles.heroSheen, styles.heroSheenTop]} pointerEvents="none" />
           <View style={[styles.heroSheen, styles.heroSheenBottom]} pointerEvents="none" />
@@ -147,7 +146,7 @@ export default function HomeScreen() {
             </View>
           </View>
           <MutedText>
-            Siklus mulai tanggal {cycleStartDay}: {cycle.start} s/d {cycle.end}
+            Siklus mulai tanggal {cycleStartDay} · {formatDateRange(cycle.start, cycle.end)}
           </MutedText>
         </Card>
 
@@ -200,7 +199,12 @@ export default function HomeScreen() {
                     style={styles.recentRow}
                     onPress={() => router.push(`/transaction/new?id=${transaction.id}`)}
                   >
-                    <View style={[styles.iconCircle, { backgroundColor: colors.background }]}>
+                    <View
+                      style={[
+                        styles.iconCircle,
+                        { backgroundColor: `${category?.color ?? colors.textMuted}14` },
+                      ]}
+                    >
                       <AppIcon
                         name={category?.icon ?? 'dots-horizontal'}
                         color={category?.color ?? colors.textMuted}
@@ -243,20 +247,9 @@ export default function HomeScreen() {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  greeting: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.xs,
-  },
-  greetingText: { flex: 1, gap: 1 },
-  greetingTitle: { fontSize: 15, fontWeight: '700', color: colors.text },
-  greetingSub: { fontSize: 11, color: colors.textMuted },
   heroWrap: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
+    paddingTop: spacing.xs,
   },
   hero: {
     backgroundColor: colors.primary,
@@ -291,7 +284,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   heroAmountNegative: { color: colors.expense },
   heroCycle: { color: colors.primaryLight, fontSize: 12 },
   heroWarning: { color: colors.onPrimary, fontSize: 12, fontWeight: '700' },
-  scroll: { paddingBottom: 120 },
   body: { gap: spacing.md, padding: spacing.lg },
   summaryRow: { flexDirection: 'row', gap: spacing.lg },
   summaryCell: { flex: 1, gap: 2 },

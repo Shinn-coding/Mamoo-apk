@@ -1,44 +1,45 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import { useTabBarClearance } from '@/components/ui/glass-tab-bar';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
-import { radius, spacing, shadow, type ThemeColors } from '@/theme/theme';
+import { spacing, shadow, type ThemeColors } from '@/theme/theme';
 
-/** Tombol tambah hijau — mengarah ke form transaksi (isi datanya fase 2). */
+/** Tombol tambah hijau — mengarah ke form transaksi. */
 export function Fab() {
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const clearance = useTabBarClearance();
   return (
-    <View style={[styles.button, shadow.card]}>
-      <Ionicons
-        name="add"
-        size={30}
-        color={colors.onPrimary}
-        onPress={() => router.push('/transaction/new')}
-        style={styles.icon}
-      />
-    </View>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Tambah transaksi"
+      onPress={() => router.push('/transaction/new')}
+      style={({ pressed }) => [
+        styles.button,
+        shadow.floating,
+        { bottom: clearance + spacing.md },
+        pressed && styles.pressed,
+      ]}
+    >
+      <Ionicons name="add" size={30} color={colors.onPrimary} />
+    </Pressable>
   );
 }
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  button: {
-    position: 'absolute',
-    right: spacing.lg,
-    bottom: 132, // di atas tab bar glass yang melayang
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    width: 60,
-    height: 60,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    button: {
+      position: 'absolute',
+      right: spacing.lg,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    pressed: { opacity: 0.85 },
+  });

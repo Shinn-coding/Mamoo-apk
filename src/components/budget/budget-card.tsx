@@ -5,7 +5,7 @@ import { formatRupiah } from '@/utils/format';
 import { percent } from '@/utils/format';
 import type { BudgetProgress } from '@/db/repositories/budgets.repository';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
-import { radius, spacing, type ThemeColors } from '@/theme/theme';
+import { spacing, surfaceCard, type ThemeColors } from '@/theme/theme';
 
 function barColor(progress: number, colors: ThemeColors): string {
   if (progress >= 100) return colors.expense;
@@ -53,10 +53,9 @@ export function BudgetCard({
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.md,
     gap: spacing.sm,
+    ...surfaceCard(colors),
   },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   iconCircle: {

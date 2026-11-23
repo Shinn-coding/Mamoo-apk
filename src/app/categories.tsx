@@ -17,7 +17,7 @@ import { useDataStore } from '@/store/use-data-store';
 import { COLOR_PALETTE, ICON_OPTIONS, type IconName } from '@/constants/icons';
 import type { Category, CategoryType } from '@/db/types';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
-import { radius, spacing, type ThemeColors } from '@/theme/theme';
+import { radius, spacing, surfaceCard, type ThemeColors } from '@/theme/theme';
 
 export default function CategoriesScreen() {
   const styles = useThemedStyles(createStyles);
@@ -333,9 +333,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.md,
+    ...surfaceCard(colors),
   },
   iconCircle: {
     width: CIRCLE,
@@ -372,10 +371,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.md,
     opacity: 0.7,
+    ...surfaceCard(colors),
   },
   activateText: { color: colors.primary, fontSize: 13, fontWeight: '700' },
   modal: { flex: 1, backgroundColor: colors.background },

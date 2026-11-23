@@ -23,7 +23,7 @@ import {
   type ProfilePhotoSource,
 } from '@/utils/profile';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
-import { radius, shadow, spacing, type ThemeColors } from '@/theme/theme';
+import { radius, shadow, spacing, surfaceCard, type ThemeColors } from '@/theme/theme';
 
 type Busy = 'photo' | 'name' | null;
 
@@ -281,11 +281,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xs,
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.lg,
     gap: spacing.md,
     ...shadow.card,
+    ...surfaceCard(colors),
   },
   label: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
   input: {

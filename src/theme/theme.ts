@@ -3,6 +3,7 @@
  * Warna dibagi menjadi palette terang/gelap; komponen mengambil palette
  * lewat `useTheme()` dari theme-provider.
  */
+import type { ViewStyle } from 'react-native';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -26,12 +27,14 @@ export const lightColors: ThemeColors = {
   primaryDark: '#008F59',
   primaryLight: '#E6F7F0',
   onPrimary: '#FFFFFF',
-  background: '#F6F8F7',
+  // Background sedikit lebih gelap + border lebih tegas supaya kartu putih
+  // tetap terbaca di mode Terang (keluhan kontras 1.2.0).
+  background: '#F2F5F3',
   surface: '#FFFFFF',
   text: '#1A1A1A',
   textMuted: '#6B7280',
   expense: '#E5484D',
-  border: '#E5EAE7',
+  border: '#D8E0DB',
   dangerSoft: '#FDECEC',
   warning: '#F5A623',
 };
@@ -72,3 +75,17 @@ export const shadow = {
     elevation: 8,
   },
 } as const;
+
+/**
+ * Permukaan kartu standar: surface + radius + garis tepi tipis.
+ * Dipakai lewat `useThemedStyles` supaya semua kartu punya kontras yang sama
+ * di mode Terang maupun Gelap.
+ */
+export function surfaceCard(colors: ThemeColors): ViewStyle {
+  return {
+    backgroundColor: colors.surface,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+  };
+}

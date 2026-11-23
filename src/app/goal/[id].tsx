@@ -19,6 +19,7 @@ import {
 import { useDataStore } from '@/store/use-data-store';
 import {
   daysBetween,
+  formatDateLong,
   formatDayLabel,
   todayLocal,
   type LocalDate,
@@ -146,7 +147,7 @@ export default function GoalDetailScreen() {
   let estimate: string | null = null;
   if (goal.deadline && goal.status === 'active' && sisa > 0) {
     const monthsLeft = Math.max(1, Math.ceil(daysBetween(todayLocal(), goal.deadline) / 30));
-    estimate = `${formatRupiah(Math.ceil(sisa / monthsLeft))}/bulan sampai ${goal.deadline}`;
+    estimate = `${formatRupiah(Math.ceil(sisa / monthsLeft))}/bulan sampai ${formatDateLong(goal.deadline)}`;
   }
 
   return (

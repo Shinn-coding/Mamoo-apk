@@ -53,6 +53,35 @@ export function formatDateShort(value: LocalDate): string {
   return parseLocalDate(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
 }
 
+/** "30 Nov 2026" untuk tenggat / keterangan satu tanggal. */
+export function formatDateLong(value: LocalDate): string {
+  return parseLocalDate(value).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+/**
+ * Rentang tanggal untuk manusia, bukan format database:
+ * "1 – 30 Nov 2026", "25 Nov – 24 Des 2026", "28 Des 2025 – 27 Jan 2026".
+ */
+export function formatDateRange(from: LocalDate, to: LocalDate): string {
+  const start = parseLocalDate(from);
+  const end = parseLocalDate(to);
+  const month = (date: Date) => date.toLocaleDateString('id-ID', { month: 'short' });
+  const sameYear = start.getFullYear() === end.getFullYear();
+  const sameMonth = sameYear && start.getMonth() === end.getMonth();
+
+  if (sameMonth) {
+    return `${start.getDate()} – ${end.getDate()} ${month(end)} ${end.getFullYear()}`;
+  }
+  if (sameYear) {
+    return `${start.getDate()} ${month(start)} – ${end.getDate()} ${month(end)} ${end.getFullYear()}`;
+  }
+  return `${start.getDate()} ${month(start)} ${start.getFullYear()} – ${end.getDate()} ${month(end)} ${end.getFullYear()}`;
+}
+
 /** "Hari ini", "Kemarin", atau "Sen, 17 Nov". */
 export function formatDayLabel(value: LocalDate): string {
   const today = todayLocal();

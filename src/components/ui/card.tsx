@@ -2,7 +2,7 @@ import type { PropsWithChildren } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { useThemedStyles } from '@/theme/theme-provider';
-import { radius, shadow, spacing, type ThemeColors } from '@/theme/theme';
+import { shadow, spacing, surfaceCard, type ThemeColors } from '@/theme/theme';
 
 export function Card({
   children,
@@ -26,10 +26,9 @@ export function MutedText({ children }: PropsWithChildren) {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.lg,
     gap: spacing.sm,
+    ...surfaceCard(colors),
   },
   section: {
     fontSize: 17,

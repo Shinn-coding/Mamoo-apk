@@ -2,13 +2,18 @@
   "expo": {
     "name": "Mamoo",
     "slug": "mamoo",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mamoo",
     "userInterfaceStyle": "automatic",
     "android": {
       "package": "com.mamoo.app",
+      "allowBackup": false,
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.INTERNET"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -37,7 +42,9 @@
         }
       ],
       "@react-native-community/datetimepicker",
-      "expo-asset"
+      "expo-asset",
+      "react-native-quick-crypto",
+      "./plugins/with-sqlcipher"
     ],
     "experiments": {
       "typedRoutes": true,

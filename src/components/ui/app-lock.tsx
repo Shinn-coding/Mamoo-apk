@@ -256,9 +256,7 @@ export function AppLock({
         >
           <Ionicons name="finger-print-outline" size={22} color={colors.primary} />
           <Text style={styles.bioText}>
-            {biometricBusy
-              ? 'Menunggu biometrik…'
-              : `Buka dengan sidik jari / wajah (${MAX_BIOMETRIC_ATTEMPTS - biometricAttempts}x)`}
+            {biometricBusy ? 'Menunggu biometrik…' : 'Buka dengan sidik jari / wajah'}
           </Text>
         </Pressable>
       ) : biometricEnabled ? (

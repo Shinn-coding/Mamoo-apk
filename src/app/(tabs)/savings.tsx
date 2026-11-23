@@ -8,7 +8,8 @@ import { AppIcon } from '@/components/ui/app-icon';
 import { IconColorPicker } from '@/components/ui/icon-color-picker';
 import { DateField } from '@/components/transaction/date-field';
 import { GlassSceneTarget } from '@/components/ui/glass-scene';
-import { ProgressRing } from '@/components/goal/progress-ring';
+import { PageHeader } from '@/components/ui/page-header';
+import { useTabBarClearance } from '@/components/ui/glass-tab-bar';
 import {
   createGoal,
   listGoals,
@@ -18,9 +19,9 @@ import {
 } from '@/db/repositories/goals.repository';
 import { useDataStore } from '@/store/use-data-store';
 import { formatRupiah, parseAmountInput, percent } from '@/utils/format';
-import { todayLocal, type LocalDate } from '@/utils/date';
+import { formatDateLong, todayLocal, type LocalDate } from '@/utils/date';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
-import { radius, spacing, type ThemeColors } from '@/theme/theme';
+import { radius, spacing, surfaceCard, type ThemeColors } from '@/theme/theme';
 import type { IconName } from '@/constants/icons';
 
 export default function SavingsScreen() {
@@ -29,6 +30,7 @@ export default function SavingsScreen() {
   const router = useRouter();
   const bump = useDataStore((state) => state.bump);
   const version = useDataStore((state) => state.version);
+  const clearance = useTabBarClearance();
 
   const [goals, setGoals] = useState<GoalWithSaved[]>([]);
   const [doneGoals, setDoneGoals] = useState<GoalWithSaved[]>([]);
@@ -97,7 +99,8 @@ export default function SavingsScreen() {
 
   return (
     <GlassSceneTarget name="savings" style={styles.container}>
-      <ScrollView contentContainerStyle={styles.list}>
+      <PageHeader title="Tabungan" subtitle="Dana yang dikunci untuk target" />
+      <ScrollView contentContainerStyle={[styles.list, { paddingBottom: clearance }]}>
         <View style={styles.summary}>
           <Text style={styles.summaryLabel}>Terkunci di Tabungan</Text>
           <Text style={styles.summaryValue}>{formatRupiah(locked)}</Text>
@@ -131,14 +134,21 @@ export default function SavingsScreen() {
                   />
                 </View>
                 <Text style={styles.cardHint}>
-                  {goal.deadline ? `tenggat ${goal.deadline} · ` : ''}
+                  {goal.deadline ? `tenggat ${formatDateLong(goal.deadline)} · ` : ''}
                   sisa {formatRupiah(Math.max(0, goal.target_amount - goal.saved))}
                 </Text>
               </View>
-              <ProgressRing size={52} progress={progress} color={goal.color} />
+              <View style={styles.progressBlock}>
+                <Text style={[styles.progressValue, { color: goal.color }]}>
+                  {Math.round(progress)}%
+                </Text>
+                <Text style={styles.progressLabel}>terkumpul</Text>
+              </View>
               <Pressable
                 hitSlop={8}
                 onPress={() => openEditor(goal)}
+                accessibilityRole="button"
+                accessibilityLabel={`Ubah target ${goal.name}`}
               >
                 <Ionicons name="pencil" size={16} color={colors.textMuted} />
               </Pressable>
@@ -238,7 +248,7 @@ export default function SavingsScreen() {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  list: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl * 4 },
+  list: { padding: spacing.lg, gap: spacing.sm },
   summary: {
     backgroundColor: colors.primary,
     borderRadius: radius.card,
@@ -252,9 +262,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.md,
+    ...surfaceCard(colors),
   },
   cardMuted: { opacity: 0.7 },
   iconCircle: {
@@ -272,6 +281,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   track: { height: 6, borderRadius: 3, backgroundColor: colors.background, overflow: 'hidden' },
   fill: { height: 6, borderRadius: 3 },
   cardHint: { fontSize: 11, color: colors.textMuted },
+  progressBlock: { alignItems: 'flex-end', minWidth: 56 },
+  progressValue: { fontSize: 20, fontWeight: '800' },
+  progressLabel: { fontSize: 10, color: colors.textMuted },
   empty: { color: colors.textMuted, textAlign: 'center', paddingVertical: spacing.lg },
   addButton: {
     flexDirection: 'row',

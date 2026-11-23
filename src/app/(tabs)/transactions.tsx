@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -7,6 +7,8 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { AppIcon } from '@/components/ui/app-icon';
 import { Fab } from '@/components/ui/fab';
 import { GlassSceneTarget } from '@/components/ui/glass-scene';
+import { PageHeader } from '@/components/ui/page-header';
+import { useTabBarClearance } from '@/components/ui/glass-tab-bar';
 import { listCategories } from '@/db/repositories/categories.repository';
 import { listWallets } from '@/db/repositories/wallets.repository';
 import { listTransactions, type TransactionFilter } from '@/db/repositories/transactions.repository';
@@ -14,6 +16,7 @@ import { useAppStore } from '@/store/use-app-store';
 import { useDataVersion } from '@/store/use-data-store';
 import {
   addMonths,
+  formatDateRange,
   formatDayLabel,
   formatMonthLabel,
   getCycleRange,
@@ -34,6 +37,7 @@ export default function TransactionsScreen() {
   const router = useRouter();
   const version = useDataVersion();
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
+  const clearance = useTabBarClearance();
 
   const [cycleStart, setCycleStart] = useState(() => getCycleRange(todayLocal(), cycleStartDay).start);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
@@ -79,8 +83,31 @@ export default function TransactionsScreen() {
   );
   const walletById = useMemo(() => new Map(wallets.map((wallet) => [wallet.id, wallet])), [wallets]);
 
+  const openManageMenu = () => {
+    Alert.alert('Kelola data transaksi', 'Pilih yang mau diatur.', [
+      { text: 'Batal', style: 'cancel' },
+      { text: 'Dompet', onPress: () => router.push('/wallets') },
+      { text: 'Kategori', onPress: () => router.push('/categories') },
+    ]);
+  };
+
   return (
     <GlassSceneTarget name="transactions" style={styles.container}>
+      <PageHeader
+        title="Transaksi"
+        action={
+          <Pressable
+            style={styles.manageButton}
+            onPress={openManageMenu}
+            accessibilityRole="button"
+            accessibilityLabel="Kelola dompet dan kategori"
+          >
+            <Ionicons name="options-outline" size={14} color={colors.primary} />
+            <Text style={styles.manageText}>Dompet & Kategori</Text>
+          </Pressable>
+        }
+      />
+
       <View style={styles.topBar}>
         <View style={styles.monthNav}>
           <Pressable
@@ -91,9 +118,7 @@ export default function TransactionsScreen() {
           </Pressable>
           <View style={styles.monthLabel}>
             <Text style={styles.monthText}>{formatMonthLabel(cycle.start)}</Text>
-            <Text style={styles.monthSub}>
-              {cycle.start} – {cycle.end}
-            </Text>
+            <Text style={styles.monthSub}>{formatDateRange(cycle.start, cycle.end)}</Text>
           </View>
           <Pressable
             onPress={() => setCycleStart((current) => addMonths(current, 1))}
@@ -102,11 +127,6 @@ export default function TransactionsScreen() {
             <Ionicons name="chevron-forward" size={20} color={colors.text} />
           </Pressable>
         </View>
-
-        <Pressable style={styles.manageButton} onPress={() => router.push('/categories')}>
-          <Ionicons name="options-outline" size={16} color={colors.primary} />
-          <Text style={styles.manageText}>Kelola</Text>
-        </Pressable>
       </View>
 
       <View style={styles.filterRow}>
@@ -139,7 +159,7 @@ export default function TransactionsScreen() {
       <SectionList
         sections={sections}
         keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: clearance }]}
         ListEmptyComponent={
           <EmptyState
             icon="swap-horizontal-outline"
@@ -160,7 +180,12 @@ export default function TransactionsScreen() {
               style={styles.row}
               onPress={() => router.push(`/transaction/new?id=${item.id}`)}
             >
-              <View style={[styles.iconCircle, { backgroundColor: colors.background }]}>
+              <View
+                style={[
+                  styles.iconCircle,
+                  { backgroundColor: `${category?.color ?? colors.textMuted}14` },
+                ]}
+              >
                 <AppIcon name={category?.icon ?? 'dots-horizontal'} color={category?.color ?? colors.textMuted} size={20} />
               </View>
               <View style={styles.rowMain}>
@@ -194,16 +219,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.xs,
   },
   monthNav: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    justifyContent: 'center',
+    gap: spacing.md,
   },
-  monthLabel: { alignItems: 'center', minWidth: 120 },
+  monthLabel: { alignItems: 'center', minWidth: 150 },
   monthText: { fontSize: 16, fontWeight: '800', color: colors.text },
   monthSub: { fontSize: 11, color: colors.textMuted },
   manageButton: {
@@ -215,7 +241,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.primaryLight,
   },
-  manageText: { color: colors.primary, fontWeight: '700', fontSize: 13 },
+  manageText: { color: colors.primary, fontWeight: '700', fontSize: 12 },
   filterRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -245,7 +271,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 13,
     color: colors.text,
   },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl * 4 },
+  list: { paddingHorizontal: spacing.lg, paddingTop: spacing.xs },
   sectionHeader: {
     fontSize: 13,
     fontWeight: '700',
@@ -257,10 +283,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+    paddingVertical: spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   iconCircle: {
     width: 40,

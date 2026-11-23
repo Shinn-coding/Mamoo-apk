@@ -17,9 +17,11 @@ import { validateBackupPayload, BACKUP_FILE_PREFIX, type BackupPayload } from '@
 import { useAppStore } from '@/store/use-app-store';
 import { useDataStore } from '@/store/use-data-store';
 import { GlassSceneTarget } from '@/components/ui/glass-scene';
+import { PageHeader } from '@/components/ui/page-header';
 import { ProfileAvatar } from '@/components/ui/profile-avatar';
+import { useTabBarClearance } from '@/components/ui/glass-tab-bar';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
-import { radius, spacing, type ThemeColors, type ThemeMode } from '@/theme/theme';
+import { radius, spacing, surfaceCard, type ThemeColors, type ThemeMode } from '@/theme/theme';
 
 type NavRow = { icon: keyof typeof Ionicons.glyphMap; label: string; route: string };
 type ActionRow = {
@@ -45,6 +47,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
   const { isDark, colors } = useTheme();
+  const clearance = useTabBarClearance();
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
   const appLockEnabled = useAppStore((state) => state.settings.appLockEnabled);
   const biometricEnabled = useAppStore((state) => state.settings.biometricEnabled);
@@ -242,7 +245,8 @@ export default function SettingsScreen() {
 
   return (
     <GlassSceneTarget name="settings" style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <PageHeader title="Pengaturan" />
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: clearance }]}>
         <Text style={styles.section}>Profil</Text>
         <Pressable
           style={styles.profileCard}
@@ -408,7 +412,7 @@ export default function SettingsScreen() {
           </Text>
           <View style={styles.aboutRow}>
             <Text style={styles.aboutLabel}>Versi aplikasi</Text>
-            <Text style={styles.aboutValue}>{Constants.expoConfig?.version ?? '1.1.2'}</Text>
+            <Text style={styles.aboutValue}>{Constants.expoConfig?.version ?? '1.2.0'}</Text>
           </View>
           <Text style={styles.copyright}>© 2026 @Shinn-dev</Text>
         </View>
@@ -419,7 +423,7 @@ export default function SettingsScreen() {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl * 4 },
+  content: { padding: spacing.lg, gap: spacing.sm, paddingTop: spacing.xs },
   section: {
     fontSize: 13,
     fontWeight: '800',
@@ -428,18 +432,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: 2,
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.lg,
     gap: spacing.md,
+    ...surfaceCard(colors),
   },
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.lg,
+    ...surfaceCard(colors),
   },
   profileName: { fontSize: 16, fontWeight: '700', color: colors.text },
   cardTitle: { fontSize: 15, fontWeight: '700', color: colors.text },

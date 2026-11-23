@@ -17,11 +17,12 @@ import { useDataStore } from '@/store/use-data-store';
 import {
   addMonths,
   cycleKey,
+  formatDateRange,
+  formatMonthLabel,
   getCycleRange,
   todayLocal,
   type CycleRange,
 } from '@/utils/date';
-import { formatMonthLabel } from '@/utils/date';
 import { parseAmountInput } from '@/utils/format';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
 import { radius, spacing, type ThemeColors } from '@/theme/theme';
@@ -136,7 +137,7 @@ export default function BudgetsScreen() {
         <View style={styles.monthLabel}>
           <Text style={styles.monthText}>{formatMonthLabel(cycle.start)}</Text>
           <Text style={styles.monthSub}>
-            siklus {cycle.start} – {cycle.end} · mulai tanggal {cycleStartDay}
+            {formatDateRange(cycle.start, cycle.end)} · mulai tanggal {cycleStartDay}
           </Text>
         </View>
         <Pressable onPress={() => setCycleStart((current) => addMonths(current, 1))} hitSlop={8}>

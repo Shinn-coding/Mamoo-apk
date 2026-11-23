@@ -6,6 +6,8 @@ import { AppIcon } from '@/components/ui/app-icon';
 import { EmptyState } from '@/components/ui/empty-state';
 import { DonutChart } from '@/components/report/donut-chart';
 import { GlassSceneTarget } from '@/components/ui/glass-scene';
+import { PageHeader } from '@/components/ui/page-header';
+import { useTabBarClearance } from '@/components/ui/glass-tab-bar';
 import {
   categoryTotals,
   dailyTotals,
@@ -16,6 +18,7 @@ import {
 import { useAppStore } from '@/store/use-app-store';
 import {
   addDays,
+  formatDateRange,
   formatMonthLabel,
   getCycleRange,
   todayLocal,
@@ -23,7 +26,7 @@ import {
 } from '@/utils/date';
 import { formatRupiah, percent } from '@/utils/format';
 import { useTheme, useThemedStyles } from '@/theme/theme-provider';
-import { radius, spacing, type ThemeColors } from '@/theme/theme';
+import { radius, spacing, surfaceCard, type ThemeColors } from '@/theme/theme';
 
 const BAR_MAX_HEIGHT = 110;
 
@@ -31,6 +34,7 @@ export default function ReportsScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
+  const clearance = useTabBarClearance();
 
   const [cycleStart, setCycleStart] = useState(() => getCycleRange(todayLocal(), cycleStartDay).start);
   const [summary, setSummary] = useState({ income: 0, expense: 0 });
@@ -81,6 +85,7 @@ export default function ReportsScreen() {
   if (summary.income === 0 && summary.expense === 0) {
     return (
       <GlassSceneTarget name="reports" style={styles.container}>
+        <PageHeader title="Laporan" />
         <CycleNav cycle={cycle} onPrev={() => setCycleStart((current) => addDays(current, -cycle.daysTotal))} onNext={() => setCycleStart((current) => addDays(current, cycle.daysTotal))} />
         <EmptyState
           icon="stats-chart-outline"
@@ -93,9 +98,10 @@ export default function ReportsScreen() {
 
   return (
     <GlassSceneTarget name="reports" style={styles.container}>
+      <PageHeader title="Laporan" subtitle={formatDateRange(cycle.start, cycle.end)} />
       <CycleNav cycle={cycle} onPrev={() => setCycleStart((current) => addDays(current, -cycle.daysTotal))} onNext={() => setCycleStart((current) => addDays(current, cycle.daysTotal))} />
 
-      <ScrollView contentContainerStyle={styles.list}>
+      <ScrollView contentContainerStyle={[styles.list, { paddingBottom: clearance }]}>
         <View style={styles.summaryCard}>
           <View style={styles.summaryCell}>
             <Text style={[styles.summaryLabel, { color: colors.primary }]}>Pemasukan</Text>
@@ -228,9 +234,7 @@ function CycleNav({
       </Pressable>
       <View style={styles.monthLabel}>
         <Text style={styles.monthText}>{formatMonthLabel(cycle.start)}</Text>
-        <Text style={styles.monthSub}>
-          siklus {cycle.start} – {cycle.end}
-        </Text>
+        <Text style={styles.monthSub}>{formatDateRange(cycle.start, cycle.end)}</Text>
       </View>
       <Pressable onPress={onNext} hitSlop={8}>
         <Ionicons name="chevron-forward" size={20} color={colors.text} />
@@ -251,7 +255,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   monthLabel: { alignItems: 'center', minWidth: 160 },
   monthText: { fontSize: 16, fontWeight: '800', color: colors.text },
   monthSub: { fontSize: 11, color: colors.textMuted },
-  list: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xl * 4 },
+  list: { padding: spacing.lg, gap: spacing.sm, paddingTop: spacing.xs },
   summaryCard: {
     flexDirection: 'row',
     gap: spacing.md,
@@ -269,10 +273,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.md,
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
     padding: spacing.md,
     gap: spacing.md,
+    ...surfaceCard(colors),
   },
   donutWrap: { alignItems: 'center', paddingVertical: spacing.sm },
   donutCenter: {
