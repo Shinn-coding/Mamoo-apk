@@ -13,6 +13,7 @@ import {
 } from '../db/repositories/settings.repository';
 import { PROFILE_NAME_MAX } from '../constants/profile';
 import { clampCycleStartDay } from '../utils/date';
+import { useDataStore } from './use-data-store';
 import type { ThemeMode } from '../theme/theme';
 
 type AppState = {
@@ -61,6 +62,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const clamped = clampCycleStartDay(day);
     await setBudgetCycleStartDay(clamped);
     set({ settings: { ...get().settings, budgetCycleStartDay: clamped } });
+    useDataStore.getState().bump();
   },
 
   changeAppLock: async (enabled) => {

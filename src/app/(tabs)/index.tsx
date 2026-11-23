@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GlassView } from 'expo-glass-effect';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 
 import { AppIcon } from '@/components/ui/app-icon';
 import { BudgetCard } from '@/components/budget/budget-card';
@@ -63,25 +63,33 @@ export default function HomeScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [budgets, setBudgets] = useState<BudgetProgress[]>([]);
 
-  useEffect(() => {
+  const reload = useCallback(async () => {
     if (!ready) return;
-    void (async () => {
-      const [balanceValue, lockedValue, summaryValue, recentValue, categoryList, budgetList] = await Promise.all([
-        totalBalance(),
-        lockedTotal(),
-        summarizeRange(cycle.start, cycle.end),
-        listTransactions({ limit: 5 }),
-        listCategories(),
-        listBudgetsWithProgress(cycleKey(cycle.start, cycleStartDay), cycle.start, cycle.end, cycle.daysLeft),
-      ]);
-      setBalance(balanceValue - lockedValue);
-      setLocked(lockedValue);
-      setSummary(summaryValue);
-      setRecent(recentValue);
-      setCategories(categoryList);
-      setBudgets(budgetList);
-    })();
-  }, [ready, cycle.start, cycle.end, cycle.daysLeft, cycleStartDay, version]);
+    const [balanceValue, lockedValue, summaryValue, recentValue, categoryList, budgetList] = await Promise.all([
+      totalBalance(),
+      lockedTotal(),
+      summarizeRange(cycle.start, cycle.end),
+      listTransactions({ limit: 5 }),
+      listCategories(),
+      listBudgetsWithProgress(cycleKey(cycle.start, cycleStartDay), cycle.start, cycle.end, cycle.daysLeft),
+    ]);
+    setBalance(balanceValue - lockedValue);
+    setLocked(lockedValue);
+    setSummary(summaryValue);
+    setRecent(recentValue);
+    setCategories(categoryList);
+    setBudgets(budgetList);
+  }, [ready, cycle.start, cycle.end, cycle.daysLeft, cycleStartDay]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload, version]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   const categoryById = useMemo(
     () => new Map(categories.map((category) => [category.id, category])),

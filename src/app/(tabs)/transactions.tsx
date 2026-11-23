@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { EmptyState } from '@/components/ui/empty-state';
@@ -52,20 +52,32 @@ export default function TransactionsScreen() {
     [cycleStart, cycleStartDay],
   );
 
-  useEffect(() => {
-    void listCategories().then(setCategories);
-    void listWallets(true).then(setWallets);
-  }, [version]);
-
-  useEffect(() => {
+  const reload = useCallback(async () => {
     const filter: TransactionFilter = {
       from: cycle.start,
       to: cycle.end,
       type: typeFilter === 'all' ? undefined : (typeFilter as TransactionType),
       search: search.trim() ? search.trim() : undefined,
     };
-    void listTransactions(filter).then(setTransactions);
-  }, [cycle.start, cycle.end, typeFilter, search, version]);
+    const [cats, wals, txs] = await Promise.all([
+      listCategories(),
+      listWallets(true),
+      listTransactions(filter),
+    ]);
+    setCategories(cats);
+    setWallets(wals);
+    setTransactions(txs);
+  }, [cycle.start, cycle.end, typeFilter, search]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload, version]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   const sections = useMemo<Section[]>(() => {
     const map = new Map<string, Transaction[]>();

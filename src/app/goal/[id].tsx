@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AmountInput } from '@/components/ui/amount-input';
@@ -59,6 +59,12 @@ export default function GoalDetailScreen() {
   useEffect(() => {
     void reload();
   }, [reload, version]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   useEffect(() => {
     void getDefaultWallet().then((wallet) => {

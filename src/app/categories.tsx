@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AppIcon } from '@/components/ui/app-icon';
@@ -33,6 +33,8 @@ export default function CategoriesScreen() {
   const [icon, setIcon] = useState<IconName>('dots-horizontal');
   const [color, setColor] = useState<string>(colors.primary);
 
+  const version = useDataStore((state) => state.version);
+
   const reload = useCallback(async () => {
     const all = await listCategories(type, true);
     setActive(all.filter((c) => c.is_archived === 0));
@@ -41,7 +43,13 @@ export default function CategoriesScreen() {
 
   useEffect(() => {
     void reload();
-  }, [reload, type]);
+  }, [reload, type, version]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   const openEditor = (category: Category | null) => {
     setEditing(category);

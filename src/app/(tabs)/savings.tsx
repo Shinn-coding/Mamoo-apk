@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AmountInput } from '@/components/ui/amount-input';
@@ -54,6 +54,12 @@ export default function SavingsScreen() {
   useEffect(() => {
     void reload();
   }, [reload, version]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   const openEditor = (goal: GoalWithSaved | null) => {
     setEditing(goal);

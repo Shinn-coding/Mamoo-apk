@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AmountInput } from '@/components/ui/amount-input';
@@ -51,6 +51,12 @@ export default function WalletsScreen() {
   useEffect(() => {
     void reload();
   }, [reload, version]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   const openEditor = (wallet: Wallet | null) => {
     setEditor({

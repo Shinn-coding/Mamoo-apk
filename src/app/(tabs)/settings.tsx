@@ -412,7 +412,7 @@ export default function SettingsScreen() {
           </Text>
           <View style={styles.aboutRow}>
             <Text style={styles.aboutLabel}>Versi aplikasi</Text>
-            <Text style={styles.aboutValue}>{Constants.expoConfig?.version ?? '1.2.0'}</Text>
+            <Text style={styles.aboutValue}>{Constants.expoConfig?.version ?? '1.2.1'}</Text>
           </View>
           <Text style={styles.copyright}>© 2026 @Shinn-dev</Text>
         </View>

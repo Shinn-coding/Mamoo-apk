@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { AppIcon } from '@/components/ui/app-icon';
@@ -16,6 +17,7 @@ import {
   type DailyTotal,
 } from '@/db/repositories/transactions.repository';
 import { useAppStore } from '@/store/use-app-store';
+import { useDataVersion } from '@/store/use-data-store';
 import {
   addDays,
   formatDateRange,
@@ -33,6 +35,7 @@ const BAR_MAX_HEIGHT = 110;
 export default function ReportsScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const version = useDataVersion();
   const cycleStartDay = useAppStore((state) => state.settings.budgetCycleStartDay);
   const clearance = useTabBarClearance();
 
@@ -46,18 +49,26 @@ export default function ReportsScreen() {
     [cycleStart, cycleStartDay],
   );
 
-  useEffect(() => {
-    void (async () => {
-      const [summaryValue, categoryList, dayList] = await Promise.all([
-        summarizeRange(cycle.start, cycle.end),
-        categoryTotals(cycle.start, cycle.end),
-        dailyTotals(cycle.start, cycle.end),
-      ]);
-      setSummary(summaryValue);
-      setByCategory(categoryList);
-      setByDay(dayList);
-    })();
+  const reload = useCallback(async () => {
+    const [summaryValue, categoryList, dayList] = await Promise.all([
+      summarizeRange(cycle.start, cycle.end),
+      categoryTotals(cycle.start, cycle.end),
+      dailyTotals(cycle.start, cycle.end),
+    ]);
+    setSummary(summaryValue);
+    setByCategory(categoryList);
+    setByDay(dayList);
   }, [cycle.start, cycle.end]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload, version]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   const days = useMemo(() => {
     const list: Array<{ date: string; label: string; income: number; expense: number }> = [];
