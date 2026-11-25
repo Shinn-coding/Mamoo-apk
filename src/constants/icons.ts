@@ -35,7 +35,7 @@ export const ICON_OPTIONS: IconName[] = [
   // kesehatan
   'heart-pulse', 'pill', 'stethoscope', 'doctor',
   // pendidikan
-  'school', 'book-open-variant', 'alphabet-latin',
+  'school', 'book-open-variant', 'pencil',
   // keuangan & umum
   'wallet', 'credit-card', 'cash', 'cash-plus', 'hand-coin', 'wallet-plus',
   'piggy-bank', 'briefcase', 'gift', 'tshirt-v', 'tools', 'baby-carriage',

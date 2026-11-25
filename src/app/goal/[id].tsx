@@ -13,9 +13,11 @@ import {
   addGoalEntry,
   getGoalWithSaved,
   listGoalEntries,
+  lockedByWallet,
   setGoalStatus,
   type GoalWithSaved,
 } from '@/db/repositories/goals.repository';
+import { walletBalances } from '@/db/repositories/transactions.repository';
 import { useDataStore } from '@/store/use-data-store';
 import {
   daysBetween,
@@ -40,20 +42,32 @@ export default function GoalDetailScreen() {
   const [goal, setGoal] = useState<GoalWithSaved | null>(null);
   const [entries, setEntries] = useState<GoalEntry[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [freeByWallet, setFreeByWallet] = useState<Record<number, number>>({});
   const [action, setAction] = useState<'deposit' | 'withdraw' | null>(null);
   const [amountText, setAmountText] = useState('');
   const [walletId, setWalletId] = useState<number | null>(null);
   const [date, setDate] = useState<LocalDate>(todayLocal());
 
+  const freeSelected = walletId != null ? freeByWallet[walletId] ?? 0 : 0;
+  const amount = parseAmountInput(amountText);
+  const overFree = action === 'deposit' && amount > 0 && amount > freeSelected;
+
   const reload = useCallback(async () => {
-    const [goalValue, entryList, walletList] = await Promise.all([
+    const [goalValue, entryList, walletList, balances, locked] = await Promise.all([
       getGoalWithSaved(goalId),
       listGoalEntries(goalId),
       listWallets(),
+      walletBalances(),
+      lockedByWallet(),
     ]);
     setGoal(goalValue);
     setEntries(entryList);
     setWallets(walletList);
+    setFreeByWallet(
+      Object.fromEntries(
+        walletList.map((wallet) => [wallet.id, (balances[wallet.id] ?? 0) - (locked[wallet.id] ?? 0)]),
+      ),
+    );
   }, [goalId]);
 
   useEffect(() => {
@@ -84,12 +98,19 @@ export default function GoalDetailScreen() {
       Alert.alert('Dompet belum dipilih', 'Pilih dompet dulu ya.');
       return;
     }
+    if (action === 'deposit' && amount > freeSelected) {
+      Alert.alert(
+        'Saldo tidak cukup',
+        `Saldo tersedia di dompet ini ${formatRupiah(Math.max(0, freeSelected))}. Kurangi nominal atau pilih dompet lain.`,
+      );
+      return;
+    }
     try {
       await addGoalEntry({
         goal_id: goal.id,
         wallet_id: walletId,
         type: action,
-        amount: parseAmountInput(amountText),
+        amount,
         date,
       });
       bump();
@@ -265,10 +286,34 @@ export default function GoalDetailScreen() {
 
           <ScrollView contentContainerStyle={styles.modalContent}>
             <Text style={styles.modalLabel}>Nominal</Text>
-            <AmountInput value={amountText} onChangeText={setAmountText} />
+            <AmountInput value={amountText} onChangeText={setAmountText} invalid={overFree} />
+
+            <View style={styles.balanceBar}>
+              <View style={styles.balanceMain}>
+                <Text style={styles.modalLabel}>
+                  {action === 'deposit' ? 'Saldo tersedia' : 'Dana terkumpul'}
+                </Text>
+                <Text style={[styles.balanceValue, overFree && { color: colors.expense }]}>
+                  {formatRupiah(Math.max(0, action === 'deposit' ? freeSelected : goal.saved))}
+                </Text>
+              </View>
+              {action === 'deposit' && freeSelected > 0 ? (
+                <Pressable
+                  style={styles.fillButton}
+                  onPress={() => setAmountText(freeSelected.toLocaleString('id-ID'))}
+                  hitSlop={6}
+                >
+                  <Text style={styles.fillText}>Isi semua</Text>
+                </Pressable>
+              ) : null}
+            </View>
 
             <Text style={styles.modalLabel}>Dompet</Text>
-            <WalletChips selectedId={walletId} onSelect={(wallet) => setWalletId(wallet.id)} />
+            <WalletChips
+              selectedId={walletId}
+              onSelect={(wallet) => setWalletId(wallet.id)}
+              balances={action === 'deposit' ? freeByWallet : undefined}
+            />
 
             <DateField value={date} onChange={setDate} />
 
@@ -357,5 +402,27 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   modalSave: { color: colors.primary, fontSize: 15, fontWeight: '700' },
   modalContent: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xl * 2 },
   modalLabel: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
+  balanceBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    marginTop: -spacing.sm,
+  },
+  balanceMain: { gap: 2 },
+  balanceValue: { fontSize: 16, fontWeight: '800', color: colors.text },
+  fillButton: {
+    backgroundColor: colors.primaryLight,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  fillText: { fontSize: 12, fontWeight: '800', color: colors.primary },
   modalHint: { fontSize: 12, color: colors.textMuted },
 });
